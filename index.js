@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = 3000;
 app.use(cors());
@@ -37,18 +37,31 @@ async function run() {
     });
 
     // post method
+    // insertOne
+    // insertMany
     app.post("/models", async (req, res) => {
       const data = req.body;
       // console.log(data);
       const result = await modelCollection.insertOne(data);
-      res.send(result);
-      /*       res.send({
+      res.send({
         success: true,
         result,
-      }); */
+      });
       /*       res.send({
         message: "Data received successfully",
       }); */
+    });
+
+    app.get("/models/:id", async (req, res) => {
+      const { id } = req.params;
+      console.log(id);
+      const objectId = new ObjectId(id);
+      const result = await modelCollection.findOne({ _id: objectId });
+      // const result = await modelCollection.findOne({ _id: new ObjectId(id) });
+      res.send({
+        success: true,
+        result,
+      });
     });
 
     // Send a ping to confirm a successful connection
