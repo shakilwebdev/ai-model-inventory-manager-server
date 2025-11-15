@@ -28,6 +28,7 @@ async function run() {
 
     const db = client.db("aiModel-db");
     const modelCollection = db.collection("models");
+
     // find
     // findOne
     app.get("/models", async (req, res) => {
@@ -58,6 +59,27 @@ async function run() {
       const objectId = new ObjectId(id);
       const result = await modelCollection.findOne({ _id: objectId });
       // const result = await modelCollection.findOne({ _id: new ObjectId(id) });
+      res.send({
+        success: true,
+        result,
+      });
+    });
+
+    // PUT
+    // updateOne
+    // updateMany
+    app.put("/models/:id", async (req, res) => {
+      const { id } = req.params;
+      const data = req.body;
+      // console.log(id);
+      // console.log(data);
+
+      const objectId = new ObjectId(id);
+      const filter = { _id: objectId };
+      const update = {
+        $set: data,
+      };
+      const result = await modelCollection.updateOne(filter, update);
       res.send({
         success: true,
         result,
