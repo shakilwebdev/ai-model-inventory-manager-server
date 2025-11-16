@@ -103,6 +103,23 @@ async function run() {
       });
     });
 
+    // latest 6 data
+    // get
+    // find
+    app.get("/latest-models", async (req, res) => {
+      const result = await modelCollection
+        .find()
+        // .sort({ createdAt: "asc" })
+        // .sort({ createdAt: -1 })
+        .sort({ createdAt: "desc" })
+        .limit(6)
+        .toArray();
+
+      console.log(result);
+
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
