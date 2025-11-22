@@ -1,6 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
+const admin = require("firebase-admin");
+const serviceAccount = require("./servicekey.json");
+
 const app = express();
 const port = 3000;
 app.use(cors());
@@ -8,6 +12,10 @@ app.use(express.json());
 
 // usersName=aiModel-db
 // password=r98SgGNO8cz5QgWm
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 const uri =
   "mongodb+srv://aiModel-db:r98SgGNO8cz5QgWm@cluster0.s1ftcag.mongodb.net/?appName=Cluster0";
@@ -20,6 +28,41 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+const verifyToken = async (req, res, next) => {
+  // console.log(req.headers.authorization);
+  // console.log("i am from middleware");
+  /*   if (req.headers.authorization === "hello") {
+    next();
+    } else {
+      res.send("unauthorized access...");
+  } */
+
+  const authorization = req.headers.authorization;
+  // const token = authorization.split(" ");
+
+  if (!authorization) {
+    return res.status(401).send({
+      message: "unauthorized access. Token not found",
+    });
+  }
+
+  const token = authorization.split(" ")[1];
+
+  try {
+    /*  const decode = await admin.auth().verifyIdToken(token);
+    console.log(decode);
+     */
+    await admin.auth().verifyIdToken(token);
+    next();
+  } catch (error) {
+    res.status(401).send({
+      message: "unauthorized access",
+    });
+  }
+
+  // console.log(token);
+};
 
 async function run() {
   try {
@@ -53,9 +96,9 @@ async function run() {
       }); */
     });
 
-    app.get("/models/:id", async (req, res) => {
+    app.get("/models/:id", verifyToken, async (req, res) => {
       const { id } = req.params;
-      console.log(id);
+      // console.log(id);
       const objectId = new ObjectId(id);
       const result = await modelCollection.findOne({ _id: objectId });
       // const result = await modelCollection.findOne({ _id: new ObjectId(id) });
