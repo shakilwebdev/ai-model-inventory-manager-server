@@ -163,7 +163,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/my-models", async (req, res) => {
+    app.get("/my-models", verifyToken, async (req, res) => {
       const email = req.query.email;
       const result = await modelCollection.find({ createdBy: email }).toArray();
       res.send(result);
