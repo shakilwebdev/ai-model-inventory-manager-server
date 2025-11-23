@@ -171,10 +171,23 @@ async function run() {
     });
 
     // my-purchase
-    app.post("/purchase", async (req, res) => {
+    app.post("/purchase/:id", async (req, res) => {
       const data = req.body;
+      const id = req.params.id;
+      // purchase Collection...
       const result = await purchaseCollection.insertOne(data);
-      res.send(result);
+      // res.send(result);
+
+      // purchase Counted
+      const filter = { _id: new ObjectId(id) };
+      const update = {
+        $inc: {
+          purchased: 1,
+        },
+      };
+      const purchaseCounted = await modelCollection.updateOne(filter, update);
+
+      res.send(result, purchaseCounted);
     });
 
     // my-purchase
