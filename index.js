@@ -71,6 +71,7 @@ async function run() {
 
     const db = client.db("aiModel-db");
     const modelCollection = db.collection("models");
+    const purchaseCollection = db.collection("purchase");
 
     // find
     // findOne
@@ -166,6 +167,22 @@ async function run() {
     app.get("/my-models", verifyToken, async (req, res) => {
       const email = req.query.email;
       const result = await modelCollection.find({ createdBy: email }).toArray();
+      res.send(result);
+    });
+
+    // my-purchase
+    app.post("/purchase", async (req, res) => {
+      const data = req.body;
+      const result = await purchaseCollection.insertOne(data);
+      res.send(result);
+    });
+
+    // my-purchase
+    app.get("/my-purchase", verifyToken, async (req, res) => {
+      const email = req.query.email;
+      const result = await purchaseCollection
+        .find({ purchased_by: email })
+        .toArray();
       res.send(result);
     });
 
