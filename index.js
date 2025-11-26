@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
+require("dotenv").config();
+
 const admin = require("firebase-admin");
 const serviceAccount = require("./servicekey.json");
 
@@ -10,15 +12,20 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// usersName=aiModel-db
-// password=r98SgGNO8cz5QgWm
+// aiModel-db
+// r98SgGNO8cz5QgWm
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
+// console.log(process.env);
+
+/* 
 const uri =
   "mongodb+srv://aiModel-db:r98SgGNO8cz5QgWm@cluster0.s1ftcag.mongodb.net/?appName=Cluster0";
+   */
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.s1ftcag.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -67,7 +74,7 @@ const verifyToken = async (req, res, next) => {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const db = client.db("aiModel-db");
     const modelCollection = db.collection("models");
@@ -97,7 +104,7 @@ async function run() {
       }); */
     });
 
-    app.get("/models/:id", verifyToken, async (req, res) => {
+    app.get("/models/:id", async (req, res) => {
       const { id } = req.params;
       // console.log(id);
       const objectId = new ObjectId(id);
@@ -209,7 +216,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
